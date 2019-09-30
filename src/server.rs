@@ -1,11 +1,11 @@
+use crate::listener;
 use crate::log;
-
 
 pub struct Server {
     args: String,
     version: String,
     pingchuan_log: log::PingchuanLog,
-    port: u16,
+    pingchuan_listener: listener::PingchuanListener,
 }
 
 impl Server {
@@ -18,33 +18,17 @@ impl Server {
         // 日志引擎开始处理日志
         self.pingchuan_log.accept();
         // 监听服务
-        self.listen();
+        self.pingchuan_listener.listen();
     }
     // 创建服务器单实例
     pub fn of(args: String) -> Server {
+        let pingchuan_listener = listener::PingchuanListener::of(8800);
         let pingchuan_server = Server {
             args: args,
             version: String::from("0.0.1"),
             pingchuan_log: log::PingchuanLog::of(),
-            port: 8800,
+            pingchuan_listener: pingchuan_listener,
         };
         pingchuan_server
-    }
-    fn listen(&mut self) {
-        let addrs = std::net::SocketAddr::from(([127, 0, 0, 1], self.port));
-        let pingchuan_listener = std::net::TcpListener::bind(addrs).unwrap();
-
-        for stream in pingchuan_listener.incoming() {
-            let stream = stream.unwrap();
-            self.handle_connection(stream);
-            println!("Connection established!");
-        }
-    }
-    // 处理请求
-    fn handle_connection(&mut self, mut stream: std::net::TcpStream) {
-        use std::io::prelude::*;
-        let mut buffer = [0; 512];
-        stream.read(&mut buffer).unwrap();
-        println!("Request: {}", String::from_utf8_lossy(&buffer[..]))
     }
 }
