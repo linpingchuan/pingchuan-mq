@@ -1,5 +1,7 @@
+mod server;
 fn main() {
     let version="0.0.1";
+    
     println!("pingchuan-mq [{}] starting now...", version);
     read_wal_log();
 
