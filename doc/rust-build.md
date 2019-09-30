@@ -5,6 +5,8 @@
 ```shell
 cargo install racer
 
+rustup update rustup component add rls-preview rust-analysis rust-src
+
 cargo install rustfmt
 
 cargo install rustsym
