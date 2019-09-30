@@ -1,5 +1,6 @@
 use crate::log;
 
+
 pub struct Server {
     args: String,
     version: String,
@@ -35,10 +36,15 @@ impl Server {
 
         for stream in pingchuan_listener.incoming() {
             let stream = stream.unwrap();
-            self.handle_connection();
+            self.handle_connection(stream);
             println!("Connection established!");
         }
     }
     // 处理请求
-    fn handle_connection(&mut self) {}
+    fn handle_connection(&mut self, mut stream: std::net::TcpStream) {
+        use std::io::prelude::*;
+        let mut buffer = [0; 512];
+        stream.read(&mut buffer).unwrap();
+        println!("Request: {}", String::from_utf8_lossy(&buffer[..]))
+    }
 }
