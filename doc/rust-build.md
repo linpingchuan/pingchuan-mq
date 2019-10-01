@@ -27,3 +27,4 @@ rustup component add rust-src –toolchain stable
 ## Rust 学习文档
 1.[基本语法](http://rooat.com/custom_types.html)
 2.[官方中文教程学习文档](https://kaisery.github.io/trpl-zh-cn/ch20-01-single-threaded.html)
+3.[Rust 入门教程](https://rustcc.gitbooks.io/rustprimer/content/)

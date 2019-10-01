@@ -1,3 +1,5 @@
+use crate::parser;
+#[derive(Debug)]
 pub struct PingchuanListener {
     port: u16,
 }
@@ -12,18 +14,23 @@ impl PingchuanListener {
 
         for stream in pingchuan_listener.incoming() {
             let stream = stream.unwrap();
-            std::thread::spawn(|| {
-                PingchuanListener::handle_connection(stream);
+            let (tx, rx) = std::sync::mpsc::channel();
+            std::thread::spawn(move || {
+                let pingchuan_event = PingchuanListener::handle_connection(stream);
+                tx.send(pingchuan_event).unwrap();
             });
-            
+            let received = rx.recv().unwrap();
+            println!("{:?}", received);
         }
     }
     // 处理请求
-    fn handle_connection(mut stream: std::net::TcpStream) {
+    fn handle_connection(mut stream: std::net::TcpStream) -> parser::PingchuanEvent {
         println!("Connection established!");
         use std::io::prelude::*;
         let mut buffer = [0; 512];
         stream.read(&mut buffer).unwrap();
-        println!("Request: {}", String::from_utf8_lossy(&buffer[..]))
+        let content = String::from_utf8_lossy(&buffer[..]);
+        let mut pingchuan_parser = parser::PingchuanParser::of();
+        pingchuan_parser.parse(content.into_owned())
     }
 }
