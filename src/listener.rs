@@ -12,12 +12,15 @@ impl PingchuanListener {
 
         for stream in pingchuan_listener.incoming() {
             let stream = stream.unwrap();
-            self.handle_connection(stream);
-            println!("Connection established!");
+            std::thread::spawn(|| {
+                PingchuanListener::handle_connection(stream);
+            });
+            
         }
     }
     // 处理请求
-    fn handle_connection(&mut self, mut stream: std::net::TcpStream) {
+    fn handle_connection(mut stream: std::net::TcpStream) {
+        println!("Connection established!");
         use std::io::prelude::*;
         let mut buffer = [0; 512];
         stream.read(&mut buffer).unwrap();
