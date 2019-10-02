@@ -1,6 +1,7 @@
 #[derive(Debug)]
 pub struct PingchuanParser {}
 #[derive(Debug, Clone)]
+#[repr(transparent)]
 pub struct PingchuanEvent {
     request_content: String,
 }

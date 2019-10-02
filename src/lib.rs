@@ -1,4 +1,4 @@
-pub mod server;
+pub mod broadcast_server;
 
 pub mod log;
 

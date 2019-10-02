@@ -1,14 +1,14 @@
 use crate::listener;
 use crate::log;
 
-pub struct Server {
+pub struct BroadcastServer {
     args: String,
     version: String,
     pingchuan_log: log::PingchuanLog,
     pingchuan_listener: listener::PingchuanListener,
 }
 
-impl Server {
+impl BroadcastServer {
     // 启动服务器
     pub fn start(&mut self) {
         print!("accept args: {}, ", self.args);
@@ -21,9 +21,9 @@ impl Server {
         self.pingchuan_listener.listen();
     }
     // 创建服务器单实例
-    pub fn of(args: String) -> Server {
+    pub fn of(args: String) -> BroadcastServer {
         let pingchuan_listener = listener::PingchuanListener::of(8800);
-        let pingchuan_server = Server {
+        let pingchuan_server = BroadcastServer {
             args: args,
             version: String::from("0.0.1"),
             pingchuan_log: log::PingchuanLog::of(),
@@ -31,4 +31,5 @@ impl Server {
         };
         pingchuan_server
     }
+    
 }
