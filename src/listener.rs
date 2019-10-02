@@ -13,24 +13,32 @@ impl PingchuanListener {
         let pingchuan_listener = std::net::TcpListener::bind(addrs).unwrap();
 
         for stream in pingchuan_listener.incoming() {
-            let stream = stream.unwrap();
-            let (tx, rx) = std::sync::mpsc::channel();
-            std::thread::spawn(move || {
-                let pingchuan_event = PingchuanListener::handle_connection(stream);
-                tx.send(pingchuan_event).unwrap();
-            });
-            let received = rx.recv().unwrap();
-            println!("{:?}", received);
+            match stream {
+                Ok(stream) => {
+                    let (tx, rx) = std::sync::mpsc::channel();
+                    std::thread::spawn(move || {
+                        let pingchuan_event = PingchuanListener::handle_connection(stream);
+                        tx.send(pingchuan_event).unwrap();
+                    });
+                    let received = rx.recv().unwrap();
+                    println!("{:?}", received);
+                }
+                Err(e) => {
+                    println!("connecting error: {}", e);
+                }
+            }
         }
     }
     // 处理请求
     fn handle_connection(mut stream: std::net::TcpStream) -> parser::PingchuanEvent {
-        println!("Connection established!");
         use std::io::prelude::*;
         let mut buffer = [0; 512];
-        stream.read(&mut buffer).unwrap();
-        let content = String::from_utf8_lossy(&buffer[..]);
+        let len = stream.read(&mut buffer).unwrap();
+        let content = String::from_utf8_lossy(&buffer[..len]);
         let mut pingchuan_parser = parser::PingchuanParser::of();
-        pingchuan_parser.parse(content.into_owned())
+        let pingchuan_event = pingchuan_parser.parse(content.into_owned());
+        stream.write(b"hi").unwrap();
+        stream.flush().unwrap();
+        pingchuan_event
     }
 }

@@ -10,7 +10,8 @@
             "name": "Debug",
             "program": "${workspaceFolder}/target/debug/pingchuan",
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "preLaunchTask": "build", //预先执行task.json
+            "cwd": "${workspaceFolder}" // 调试程序时的工作目录
         }
     ]
 }
