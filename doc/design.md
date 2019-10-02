@@ -17,4 +17,4 @@
 
 
 ## 相关资料
-1.[MIT6.824 分布式系统](https://github.com/feixiao/Distributed-Systems)
+1.[MIT6.824 分布式系统](./distributed-systems/README.md)
