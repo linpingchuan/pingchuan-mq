@@ -25,3 +25,5 @@
 
 ## 相关资料
 1.[MIT6.824 分布式系统](./distributed-systems/README.md)
+2.[为 Kafka 写驱动](https://cwiki.apache.org/confluence/display/KAFKA/Writing+a+Driver+for+Kafka)
+3.[日志系统 事务性](https://www.confluent.io/blog/transactions-apache-kafka/)

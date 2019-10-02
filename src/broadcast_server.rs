@@ -31,5 +31,5 @@ impl BroadcastServer {
         };
         pingchuan_server
     }
-    
+    // 注册广播
 }
