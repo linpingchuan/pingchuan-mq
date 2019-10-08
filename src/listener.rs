@@ -18,11 +18,17 @@ impl PingchuanListener {
                 Ok(stream) => {
                     let (tx, rx) = std::sync::mpsc::channel();
                     std::thread::spawn(move || {
-                        let pingchuan_event = PingchuanListener::handle_connection(stream);
-                        tx.send(pingchuan_event).unwrap();
+                        match PingchuanListener::handle_connection(stream) {
+                            Ok(pingchuan_event) => tx.send(pingchuan_event).unwrap(),
+                            Err(_) => {}
+                        }
                     });
-                    let received = rx.recv().unwrap();
-                    println!("{:?}", received);
+                    match rx.recv() {
+                        Ok(received) => {
+                            println!("{:?}", received);
+                        }
+                        Err(_) => {}
+                    }
                 }
                 Err(e) => {
                     println!("connecting error: {}", e);
@@ -31,20 +37,24 @@ impl PingchuanListener {
         }
     }
     // 处理请求
-    fn handle_connection(mut stream: std::net::TcpStream) -> parser::PingchuanEvent {
+    fn handle_connection(
+        mut stream: std::net::TcpStream,
+    ) -> Result<parser::PingchuanEvent, String> {
         let mut buffer = [0; 512];
         let len = stream.read(&mut buffer).unwrap();
-        let content = String::from_utf8_lossy(&buffer[..len]);
-
-        let request_content = content.into_owned();
-        if "hi" == request_content {
-            return PingchuanListener::hi(stream, request_content);
+        if len == 2 {
+            let content = String::from_utf8_lossy(&buffer[..len]);
+            let request_content = content.into_owned();
+            if "hi" == request_content {
+                return Ok(PingchuanListener::hi(stream, request_content));
+            }
         }
         let mut pingchuan_parser = parser::PingchuanParser::of();
-        let pingchuan_event = pingchuan_parser.parse(request_content);
-        stream.write(b"hi, I am pingchuan23333 :)").unwrap();
-        stream.flush().unwrap();
-        pingchuan_event
+        // let pingchuan_event = pingchuan_parser.parse(request_content);
+        // stream.write(b"hi, I am pingchuan23333 :)").unwrap();
+        // stream.flush().unwrap();
+        // pingchuan_event
+        Err(String::from("平川流无法解析"))
     }
 
     fn hi(mut stream: std::net::TcpStream, request_content: String) -> parser::PingchuanEvent {
