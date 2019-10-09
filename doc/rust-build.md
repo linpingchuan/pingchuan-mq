@@ -34,3 +34,5 @@ rustup component add rust-src –toolchain stable
 4.[使用 Rust 写聊天室](https://nbaksalyar.github.io/2015/07/10/writing-chat-in-rust.html)
 
 5.[Transmutes 类型转换](https://doc.rust-lang.org/nomicon/transmutes.html)
+
+6.[类型转换](https://doc.rust-lang.org/1.5.0/book/casting-between-types.html)
