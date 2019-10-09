@@ -10,7 +10,7 @@ fn test_connect() {
 #[test]
 fn test_protocol() {
     let mut socket = std::net::TcpStream::connect("localhost:8800").unwrap();
-    let request_header=vec![];
+    // let request_header=vec![];
     
     // socket.write().unwrap();
 }
