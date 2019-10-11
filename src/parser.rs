@@ -13,6 +13,7 @@ pub struct PingchuanPacket{
     role:u64 ,
     order:u64, 
     gzip:u64,
+    crc:String,
     offset:u64,
     topic:String,
     content:Vec<u8>, 
@@ -31,35 +32,42 @@ impl PingchuanParser {
         std::slice::from_raw_parts((p as *const T) as *const u8, ::std::mem::size_of::<T>())
     }
 
-    fn add_u64_to_bytes(t:u64,bytes:&mut [u8],offset:usize)->(&[u8],usize){
-        let mut capacity=offset;
+    fn add_u64_to_bytes(t:u64,bytes:&mut Vec<u8>)->&mut Vec<u8>{
         unsafe {
-            
-            let transaction_id_bytes = std::mem::transmute::<u64, [u8; 8]>(t);
-            for index in 0..transaction_id_bytes.len() {
-                bytes[capacity + index] = transaction_id_bytes[index];
+            let tmps = std::mem::transmute::<u64, [u8; 8]>(t);
+            for byte in tmps.iter() {
+                bytes.push(*byte);
             }
-            capacity += transaction_id_bytes.len();
-            assert_eq!(
-                bytes[offset..offset + transaction_id_bytes.len()],
-                transaction_id_bytes[..transaction_id_bytes.len()]
-            );
+            
         }
-        (bytes,capacity)
+        bytes
     }
 
-    pub fn serialize_to_pingchuan_packet(packet:PingchuanPacket,bytes: &mut [u8]) -> (&[u8],usize) {
-        // let  mut bytes:[u8;512]=[0;512];
+    pub fn serialize_to_pingchuan_packet(packet:PingchuanPacket,bytes: &mut Vec<u8>) -> &mut Vec<u8> {
         let magic_bytes = b"pingchuan";
-        let mut capacity:usize = 0;
         for index in 0..magic_bytes.len() {
-            bytes[index] = magic_bytes[index];
+            bytes.push(magic_bytes[index]);
         }
-        capacity += magic_bytes.len();
-        assert_eq!(bytes[..magic_bytes.len()], magic_bytes[..magic_bytes.len()]);
-        let result=PingchuanParser::add_u64_to_bytes(packet.transaction_id, bytes, capacity);
-        let tmp=*result.0;
-        result=PingchuanParser::add_u64_to_bytes(packet.topic_len, &mut tmp, result.1);
+        
+        let result=PingchuanParser::add_u64_to_bytes(packet.transaction_id, bytes);
+        let result=PingchuanParser::add_u64_to_bytes(packet.topic_len, result);
+        let result=PingchuanParser::add_u64_to_bytes(packet.content_len, result);
+        let result=PingchuanParser::add_u64_to_bytes(packet.role, result);
+        let result=PingchuanParser::add_u64_to_bytes(packet.order, result);
+        let result=PingchuanParser::add_u64_to_bytes(packet.gzip, result);
+        // crc
+        for byte in packet.crc.bytes(){
+            result.push(byte);
+        }
+        let result=PingchuanParser::add_u64_to_bytes(packet.offset, result);
+        let result=PingchuanParser::add_u64_to_bytes(packet.topic_len, result);
+        for byte in packet.topic.bytes(){
+            result.push(byte);
+        }
+        // content
+        for byte in packet.content{
+            result.push(byte);
+        }
         result
     }
 }
