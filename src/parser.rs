@@ -6,7 +6,6 @@ pub struct PingchuanEvent {
     request_content: String,
 }
 #[derive(Debug)]
-// #[repr(transparent)]
 pub struct PingchuanPacket{
     transaction_id:u64,
     topic_len:u64,
@@ -49,7 +48,7 @@ impl PingchuanParser {
         (bytes,capacity)
     }
 
-    pub fn serialize_to_pingchuan_packet(bytes: &mut [u8]) -> (&[u8],usize) {
+    pub fn serialize_to_pingchuan_packet(packet:PingchuanPacket,bytes: &mut [u8]) -> (&[u8],usize) {
         // let  mut bytes:[u8;512]=[0;512];
         let magic_bytes = b"pingchuan";
         let mut capacity:usize = 0;
@@ -58,8 +57,9 @@ impl PingchuanParser {
         }
         capacity += magic_bytes.len();
         assert_eq!(bytes[..magic_bytes.len()], magic_bytes[..magic_bytes.len()]);
-        let transaction_id: u64 = 13534044911;
-        let result=PingchuanParser::add_u64_to_bytes(transaction_id, bytes, capacity);
+        let result=PingchuanParser::add_u64_to_bytes(packet.transaction_id, bytes, capacity);
+        let tmp=*result.0;
+        result=PingchuanParser::add_u64_to_bytes(packet.topic_len, &mut tmp, result.1);
         result
     }
 }
