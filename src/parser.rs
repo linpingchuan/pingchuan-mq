@@ -8,7 +8,7 @@ pub struct PingchuanParser {}
 pub struct PingchuanEvent {
     request_content: String,
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct PingchuanPacket {
     pub transaction_id: u64,
     pub topic_len: u64,
@@ -24,21 +24,21 @@ pub struct PingchuanPacket {
     pub content: Rc<RefCell<Vec<u8>>>,
 }
 
-impl PingchuanPacket{
-    pub fn new()->PingchuanPacket{
-        PingchuanPacket{
-            transaction_id:0,
-            topic_len:0,
-            content_len:0,
-            role:0,
+impl PingchuanPacket {
+    pub fn new() -> PingchuanPacket {
+        PingchuanPacket {
+            transaction_id: 0,
+            topic_len: 0,
+            content_len: 0,
+            role: 0,
 
-            order:0,
-            gzip:0,
-            crc:String::from(""),
-            offset:0,
+            order: 0,
+            gzip: 0,
+            crc: String::from(""),
+            offset: 0,
 
-            topic:String::from(""),
-            content:Rc::new(RefCell::new(Vec::new())),
+            topic: String::from(""),
+            content: Rc::new(RefCell::new(Vec::new())),
         }
     }
 }
@@ -78,11 +78,11 @@ impl PingchuanParser {
     }
 
     pub fn deserialize_from_pingchuan_packet(
-        pingchuan_packet:Rc<RefCell<PingchuanPacket>>,
+        pingchuan_packet: Rc<RefCell<PingchuanPacket>>,
         bytes: &mut Vec<u8>,
     ) -> Option<Rc<RefCell<PingchuanPacket>>> {
         let magic_bytes = b"pingchuan";
-        let mut packet=pingchuan_packet.borrow_mut();
+        let mut packet = pingchuan_packet.borrow_mut();
         // 检验魔数
         for index in 0..magic_bytes.len() {
             if bytes[index] != magic_bytes[index] {
@@ -126,10 +126,10 @@ impl PingchuanParser {
     }
 
     pub fn serialize_to_pingchuan_packet(
-        p:  Rc<RefCell<PingchuanPacket>>,
+        p: Rc<RefCell<PingchuanPacket>>,
         bytes: &mut Vec<u8>,
     ) -> &mut Vec<u8> {
-        let packet=p.borrow();
+        let packet = p.borrow();
         let magic_bytes = b"pingchuan";
         for index in 0..magic_bytes.len() {
             bytes.push(magic_bytes[index]);
@@ -151,7 +151,7 @@ impl PingchuanParser {
             result.push(byte);
         }
         // content
-        let tmp=packet.content.borrow_mut();
+        let tmp = packet.content.borrow();
         for byte in tmp.iter() {
             result.push(*byte);
         }

@@ -2,7 +2,6 @@ use crate::parser;
 use std::io::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::ops::Deref;
 
 #[derive(Debug)]
 pub struct PingchuanListener {
