@@ -21,10 +21,10 @@ fn test_protocol() {
         role: 111,
         order: 111,
         gzip: 111,
-        crc: String::from("111"),
+        // crc: String::from("111"),
         offset: 111,
         topic: String::from("111"),
-        content: Rc::new(RefCell::new(vec![12])),
+        content: Rc::new(RefCell::new(vec![12, 34])),
     };
     let mut bytes: Vec<u8> = Vec::new();
     let content = parser::PingchuanParser::serialize_to_pingchuan_packet(

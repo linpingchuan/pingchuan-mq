@@ -1,6 +1,6 @@
 use crate::parser;
-use std::io::prelude::*;
 use std::cell::RefCell;
+use std::io::prelude::*;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -43,8 +43,9 @@ impl PingchuanListener {
     fn handle_connection(
         mut stream: std::net::TcpStream,
     ) -> Result<parser::PingchuanEvent, String> {
-        let mut buffer = [0; 1024];
-        let len = stream.read(&mut buffer).unwrap();
+        const MAX_LENGTH: usize = 64;
+        let mut buffer = [0; MAX_LENGTH];
+        let mut len = stream.read(&mut buffer).unwrap();
         if len == 2 {
             let content = String::from_utf8_lossy(&buffer[..len]);
             let request_content = content.into_owned();
@@ -52,18 +53,33 @@ impl PingchuanListener {
                 return Ok(PingchuanListener::hi(stream, request_content));
             }
         }
-        let pingchuan_packet=Rc::new(RefCell::new(parser::PingchuanPacket::new()));
+        let mut buffer_vec: Vec<u8> = Vec::new();
+        loop {
+            buffer_vec.extend(buffer.to_vec());
+            buffer = [0; MAX_LENGTH];
+            len = stream.read(&mut buffer).unwrap();
+            if len <= 0 || len < MAX_LENGTH {
+                break;
+            }
+        }
+        buffer_vec.extend(buffer.to_vec());
+        let pingchuan_packet = Rc::new(RefCell::new(parser::PingchuanPacket::new()));
         match parser::PingchuanParser::deserialize_from_pingchuan_packet(
             pingchuan_packet,
-            &mut buffer.to_vec(),
+            &mut buffer_vec,
         ) {
-            Some(p)=>{
-                let packet=p.borrow(); 
+            Some(p) => {
+                let packet = p.borrow();
                 println!("{:?}", packet);
-                let mut bytes=Vec::new();
-                stream.write(parser::PingchuanParser::serialize_to_pingchuan_packet(p.clone(), &mut bytes)).unwrap();
+                let mut bytes = Vec::new();
+                stream
+                    .write(parser::PingchuanParser::serialize_to_pingchuan_packet(
+                        p.clone(),
+                        &mut bytes,
+                    ))
+                    .unwrap();
             }
-            _=>{println!("服务器出错")}
+            _ => println!("服务器出错"),
         }
         // stream.write(b"hi, I am pingchuan23333 :)").unwrap();
         // stream.flush().unwrap();

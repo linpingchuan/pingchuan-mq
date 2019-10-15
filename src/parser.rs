@@ -17,7 +17,7 @@ pub struct PingchuanPacket {
 
     pub order: u64,
     pub gzip: u64,
-    pub crc: String,
+    // pub crc: String,
     pub offset: u64,
 
     pub topic: String,
@@ -34,7 +34,7 @@ impl PingchuanPacket {
 
             order: 0,
             gzip: 0,
-            crc: String::from(""),
+            // crc: String::from(""),
             offset: 0,
 
             topic: String::from(""),
@@ -111,8 +111,8 @@ impl PingchuanParser {
         let (gzip, tmp) = tmp.split_at(split_length);
         packet.gzip = PingchuanParser::from_bytes_to_64(gzip.to_vec());
 
-        let (crc, tmp) = tmp.split_at(split_length);
-        packet.crc = String::from_utf8_lossy(&crc).into_owned();
+        // let (crc, tmp) = tmp.split_at(split_length);
+        // packet.crc = String::from_utf8_lossy(&crc).into_owned();
 
         let (offset, tmp) = tmp.split_at(split_length);
         packet.offset = PingchuanParser::from_bytes_to_64(offset.to_vec());
@@ -134,19 +134,24 @@ impl PingchuanParser {
         for index in 0..magic_bytes.len() {
             bytes.push(magic_bytes[index]);
         }
-
+        let mut topic_len: u64 = 0;
+        for _ in packet.topic.bytes() {
+            topic_len += 1;
+        }
         let result = PingchuanParser::add_u64_to_bytes(packet.transaction_id, bytes);
-        let result = PingchuanParser::add_u64_to_bytes(packet.topic_len, result);
-        let result = PingchuanParser::add_u64_to_bytes(packet.content_len, result);
+        let result = PingchuanParser::add_u64_to_bytes(topic_len, result);
+        // content
+        let content_len = packet.content.borrow().len() as u64;
+        let result = PingchuanParser::add_u64_to_bytes(content_len, result);
         let result = PingchuanParser::add_u64_to_bytes(packet.role, result);
         let result = PingchuanParser::add_u64_to_bytes(packet.order, result);
         let result = PingchuanParser::add_u64_to_bytes(packet.gzip, result);
         // crc
-        for byte in packet.crc.bytes() {
-            result.push(byte);
-        }
+        // for byte in packet.crc.bytes() {
+        //     result.push(byte);
+        // }
         let result = PingchuanParser::add_u64_to_bytes(packet.offset, result);
-        let result = PingchuanParser::add_u64_to_bytes(packet.topic_len, result);
+
         for byte in packet.topic.bytes() {
             result.push(byte);
         }
