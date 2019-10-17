@@ -3,6 +3,8 @@
 
 ## 设计与实现
 
+- [手把手教你如何写 Raft 状态机](./doc/how_to_raft_statemachine/README.md)
+
 - [环境搭建文档](./doc/rust-build.md)
 
 - [设计文档](./doc/design.md)
