@@ -23,7 +23,7 @@ fn test_protocol() {
         gzip: 111,
         // crc: String::from("111"),
         offset: 111,
-        topic: String::from("111"),
+        topic: String::from("11到底是谁的撒旦法经济的技术1"),
         content: Rc::new(RefCell::new(vec![12, 34])),
     };
     let mut bytes: Vec<u8> = Vec::new();

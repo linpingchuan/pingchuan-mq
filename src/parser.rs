@@ -17,7 +17,6 @@ pub struct PingchuanPacket {
 
     pub order: u64,
     pub gzip: u64,
-    // pub crc: String,
     pub offset: u64,
 
     pub topic: String,
